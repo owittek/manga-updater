@@ -1,0 +1,22 @@
+[
+    {
+        "name": "One of the 3 currently supported sites shown in the examples",
+        "baseUrl": "url without the path (part after the '/')",
+        "mangaId": "path (url after the '/') without 'read-' or 'manga-', just the id"
+    },
+    {
+        "name": "Example 1",
+        "baseUrl": "https://mangakakalot.com/",
+        "mangaId": ""
+    },
+    {
+        "name": "Example 2",
+        "baseUrl": "https://readmanganato.com/",
+        "mangaId": ""
+    },
+    {
+        "name": "Example 3",
+        "baseUrl": "https://m.manganelo.com/",
+        "mangaId": ""
+    }
+]
