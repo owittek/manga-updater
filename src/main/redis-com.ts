@@ -70,7 +70,6 @@ async function synchronizeLocalOnlyManga(localManga?: Manga[], allKeys?: string[
             await setManga(manga);
         }
     });
-
     return localOnlyManga;
 }
 
