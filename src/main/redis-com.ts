@@ -13,7 +13,6 @@ const rexec = redis.executor;
 
 export async function getManga(url: string): Promise<Manga> {
     const reply = await rexec.exec('JSON.GET', url);
-    console.log(reply.value());
     return JSON.parse(<string>reply.value());
 }
 
@@ -22,12 +21,13 @@ export async function updateMangaChapter(manga: Manga, updatedChapterName: strin
     await setManga(manga);
 }
 
-export async function setManga(manga: Manga): Promise<void> {
+export async function setManga(manga: Manga): Promise<string> {
     const reply = await rexec.exec('JSON.SET', manga.url, '.', JSON.stringify(manga));
     const replyVal = reply.value();
     if (replyVal !== "OK" && replyVal !== "QUEUED") {
         Promise.reject(`Received '${reply.value}' from database`);
     }
+    return <string>replyVal;
 }
 
 export async function getAllMangas(): Promise<Manga[]> {
