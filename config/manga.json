@@ -11,11 +11,16 @@
     },
     {
         "name": "Example 2",
-        "baseUrl": "https://readmanganato.com/",
+        "baseUrl": "https://manganato.com/",
         "mangaId": ""
     },
     {
         "name": "Example 3",
+        "baseUrl": "https://readmanganato.com/",
+        "mangaId": ""
+    },
+    {
+        "name": "Example 4",
         "baseUrl": "https://m.manganelo.com/",
         "mangaId": ""
     }
