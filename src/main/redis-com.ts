@@ -1,6 +1,6 @@
 import { redisConnect } from "../deps/redis.ts";
 import { Manga } from "../interfaces/Manga.ts";
-import { loadMangasFromJson } from "./load-mangas.ts";
+import { loadMangasFromJson, setMangaUrl } from "./load-mangas.ts";
 import { getWebpageEnum } from "./get-webpage-enum.ts";
 import { logWithTime } from "./log-with-time.ts";
 
@@ -31,7 +31,7 @@ export async function setManga(manga: Manga): Promise<void> {
 }
 
 export async function getAllMangas(): Promise<Manga[]> {
-    const localMangas = await loadMangasFromJson()
+    const localMangas = setMangaUrl(...await loadMangasFromJson());
     const allKeys = await getAllKeys();
     const mangas: Manga[] = [];
 
@@ -87,10 +87,8 @@ async function loadDbMangas(dbKeys: string[]): Promise<Manga[]> {
 
 async function initDb(localManga: Manga[]): Promise<Manga[]> {
     await redis.multi();
-    localManga.forEach(async manga => {
-        manga.url = getWebpageEnum(manga.baseUrl)! + manga.mangaId;
-        await setManga(manga);
-    });
+    const finalizedManga = setMangaUrl(...localManga);
+    finalizedManga.forEach(async manga => await setManga(manga));
     await redis.exec();
     return localManga;
 }
