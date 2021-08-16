@@ -23,7 +23,6 @@ export async function updateMangaChapter(manga: Manga, updatedChapterName: strin
 }
 
 export async function setManga(manga: Manga): Promise<void> {
-
     const reply = await rexec.exec('JSON.SET', manga.url, '.', JSON.stringify(manga));
     const replyVal = reply.value();
     if (replyVal !== "OK" && replyVal !== "QUEUED") {
