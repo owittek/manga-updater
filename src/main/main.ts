@@ -1,9 +1,7 @@
 import { sendDiscordMessage } from "../discord-notifier/discord-notifier.ts";
 import { fetchChapter } from "./fetch-chapter.ts";
+import { logWithTime } from "./log-with-time.ts";
 import { flushDatabase, getAllMangas, updateMangaChapter } from "./redis-com.ts";
-
-const date = new Date();
-const logWithTime = (message: string) => console.log(`%c${date.toLocaleTimeString('de-DE')}:`, 'color: green', message);
 
 const main = async (flushDb?: boolean) => {
     if (flushDb === true) {
