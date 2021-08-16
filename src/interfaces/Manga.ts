@@ -3,5 +3,5 @@ export interface Manga {
   baseUrl: string;
   url: string;
   mangaId: string;
-  latestChapterName: string;
+  latestChapterName?: string;
 }
