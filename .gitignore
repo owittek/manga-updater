@@ -1,6 +1,6 @@
 .vscode/
 output/
-src/test.ts
+src/test/
 config/config.ts
 config/lazy-urls.json
 config/manga.json
