@@ -2,6 +2,7 @@ import { redisConnect } from "../deps/redis.ts";
 import { Manga } from "../interfaces/Manga.ts";
 import { loadMangasFromJson } from "./load-mangas.ts";
 import { getWebpageEnum } from "./get-webpage-enum.ts";
+import { logWithTime } from "./log-with-time.ts";
 
 const redis = await redisConnect({
     hostname: "127.0.0.1",
@@ -30,21 +31,19 @@ export async function setManga(manga: Manga): Promise<void> {
     }
 }
 
-async function getAllKeys(): Promise<string[]> {
-    return await redis.keys('*');
-}
-
 export async function getAllMangas(): Promise<Manga[]> {
+    const localMangas = await loadMangasFromJson()
     const allKeys = await getAllKeys();
-    let mangas: Manga[] = [];
+    const mangas: Manga[] = [];
+
     if (allKeys.length > 0) {
-        const reply = await rexec.exec('JSON.MGET', ...allKeys, '.');
-        const values = <Array<string>>reply.value();
-        values.forEach(strObj => mangas.push(JSON.parse(strObj)));
+        mangas.push(...await synchronizeLocalOnlyManga(localMangas));
+        mangas.push(...await loadDbMangas(allKeys));
     } else {
-        console.log('INITIALIZING DB')
-        mangas = await initDb();
-        console.log('INIT DONE')
+        mangas.push(...await initDb(localMangas).then(allMangas => {
+            logWithTime('DB successfully initialized');
+            return allMangas;
+        }));
     }
     return mangas;
 }
@@ -53,14 +52,47 @@ export function flushDatabase() {
     return redis.flushall();
 }
 
-async function initDb(): Promise<Manga[]> {
-    const mangasFromJson = await loadMangasFromJson();
+async function synchronizeLocalOnlyManga(localManga?: Manga[], allKeys?: string[]): Promise<Manga[]> {
+    if (localManga === undefined) {
+        localManga = await loadMangasFromJson();
+    }
+    if (allKeys === undefined) {
+        allKeys = await getAllKeys();
+    }
 
-    redis.multi();
-    mangasFromJson.forEach(async manga => {
+    const keyMap = new Map<string, undefined>();
+    allKeys.forEach(key => keyMap.set(key, undefined));
+    const localOnlyManga: Manga[] = [];
+
+    localManga.forEach(async (manga) => {
+        if (keyMap.has(manga.url) === false) {
+            manga.url = getWebpageEnum(manga.baseUrl)!.concat(manga.mangaId);
+            localOnlyManga.push(manga);
+            await setManga(manga);
+        }
+    });
+
+    return localOnlyManga;
+}
+
+async function getAllKeys(): Promise<string[]> {
+    return await redis.keys('*');
+}
+
+async function loadDbMangas(dbKeys: string[]): Promise<Manga[]> {
+    const dbOnlyManga: Manga[] = [];
+    const reply = await rexec.exec('JSON.MGET', ...dbKeys, '.');
+    const values = <Array<string>>reply.value();
+    values.forEach(strObj => dbOnlyManga.push(JSON.parse(strObj)));
+    return dbOnlyManga;
+}
+
+async function initDb(localManga: Manga[]): Promise<Manga[]> {
+    await redis.multi();
+    localManga.forEach(async manga => {
         manga.url = getWebpageEnum(manga.baseUrl)! + manga.mangaId;
         await setManga(manga);
     });
-    redis.exec();
-    return mangasFromJson;
+    await redis.exec();
+    return localManga;
 }
