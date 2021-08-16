@@ -43,6 +43,10 @@ async function getUpdatedMangas(): Promise<Watchable[]> {
                     manga.identifier = "document.getElementsByClassName('chapter-name')[0]";
                     break;
 
+                case Webpage.mangadex:
+                    manga.identifier = "document.getElementsByClassName('text-truncate')[0]";
+                    break;
+
                 default:
                     console.error(`Case for ${webPage} has not been implemented yet!`);
                     break;
