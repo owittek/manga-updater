@@ -1,5 +1,6 @@
 export enum Webpage {
     mangakakalot = "https://mangakakalot.com/read-",
-    manganato = "https://readmanganato.com/manga-",
+    manganato = "https://manganato.com/manga-",
+    readmanganato = "https://readmanganato.com/manga-",
     manganelo = "https://m.manganelo.com/manga-",
 }

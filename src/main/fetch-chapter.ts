@@ -28,12 +28,13 @@ function parseLatestChapterName(document: HTMLDocument, webPage: Webpage): strin
             break;
 
         case Webpage.manganato:
+        case Webpage.readmanganato:
         case Webpage.manganelo:
             chapterElement = document.getElementsByClassName('chapter-name')[0];
             break;
 
         default:
-            console.log(`Case for ${webPage} has not been implemented yet!`);
+            console.error(`Case for ${webPage} has not been implemented yet!`);
             break;
     }
     if (chapterElement === undefined) {
