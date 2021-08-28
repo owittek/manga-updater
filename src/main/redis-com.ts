@@ -40,7 +40,7 @@ export async function getAllMangas(): Promise<Manga[]> {
         mangas.push(...await loadDbMangas(allKeys));
     } else {
         mangas.push(...await initDb(localMangas).then(allMangas => {
-            logWithTime('DB successfully initialized');
+            logWithTime('DB initialized successfully');
             return allMangas;
         }));
     }

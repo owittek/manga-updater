@@ -1,6 +1,6 @@
-import { Embed } from "../enums/Embed.ts";
+import { Embed } from "./Embed.ts";
 
-interface Body {
+export interface Body {
   username?: string;
   // deno-lint-ignore camelcase
   avatar_url?: string;
