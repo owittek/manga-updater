@@ -1,3 +1,4 @@
+import { Body } from "../interfaces/Body.ts";
 import { Embed } from "../interfaces/Embed.ts";
 import { config } from "../../config/config.ts";
 
@@ -11,7 +12,17 @@ export async function sendDiscordMessage(...embeds: Embed[]) {
     });
 }
 
-function getBody(embeds: Embed[]) {
-    config.body.embeds = embeds;
-    return config.body;
+function getBody(embeds: Embed[]): Body {
+    const embedColorOrRandom = config.discordSettings.embedColor;
+    if (embedColorOrRandom !== undefined) {
+        const color = (embedColorOrRandom.localeCompare('random', undefined, { sensitivity: 'accent' }) == 0) ?
+            Math.floor(Math.random() * (0xffffff + 1)) : Number.parseInt(config.discordSettings.embedColor);
+        embeds.forEach(embed => embed.color = color);
+    }
+
+    return {
+        username: config.discordSettings.username,
+        avatar_url: config.discordSettings.avatarUrl,
+        embeds: embeds
+    }
 }
