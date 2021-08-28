@@ -7,9 +7,9 @@ export const config = {
         token: ''
     },
 
-    body: {
+    discordSettings: {
         username: '',
-        avatar_url: '',
-        embeds: [] as Embed[] // embeds should not be changed
+        avatarUrl: '',
+        embedColor: '' // either decimal color code or 'random'
     }
 }
