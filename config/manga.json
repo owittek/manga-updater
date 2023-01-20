@@ -1,27 +1,30 @@
 [
-    {
-        "name": "One of the 3 currently supported sites shown in the examples",
-        "baseUrl": "url without the path (part after the '/')",
-        "mangaId": "path (url after the '/') without 'read-' or 'manga-', just the id"
-    },
-    {
-        "name": "Example 1",
-        "baseUrl": "https://mangakakalot.com/",
-        "mangaId": ""
-    },
-    {
-        "name": "Example 2",
-        "baseUrl": "https://manganato.com/",
-        "mangaId": ""
-    },
-    {
-        "name": "Example 3",
-        "baseUrl": "https://readmanganato.com/",
-        "mangaId": ""
-    },
-    {
-        "name": "Example 4",
-        "baseUrl": "https://m.manganelo.com/",
-        "mangaId": ""
-    }
+  {
+    "name": "name of a manga",
+    "url": "url to a manga on one of the 6 supported pages shown in the examples"
+  },
+  {
+    "name": "Example 1",
+    "url": "https://mangakakalot.com/"
+  },
+  {
+    "name": "Example 2",
+    "url": "https://manganato.com/"
+  },
+  {
+    "name": "Example 3",
+    "url": "https://readmanganato.com/"
+  },
+  {
+    "name": "Example 4",
+    "url": "https://m.manganelo.com/"
+  },
+  {
+    "name": "Example 5",
+    "url": "https://mangadex.tv/"
+  },
+  {
+    "name": "Example 6",
+    "url": "https://asura.gg/"
+  }
 ]

@@ -1,1 +1,0 @@
-export const logWithTime = (message: string) => console.log(`%c${new Date().toLocaleTimeString('de-DE')}:`, 'color: green', message);

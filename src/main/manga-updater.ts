@@ -1,83 +1,115 @@
-import { DOMParser, Element, HTMLDocument } from '../deps/deno-dom.ts';
+import { DOMParser, HTMLDocument } from "../deps/deno-dom.ts";
 import { Webpage } from "../enums/Webpage.ts";
 import { Embed } from "../interfaces/Embed.ts";
 import { Manga } from "../interfaces/Manga.ts";
-import { getMessage } from "./get-message.ts";
-import { getWebpageEnum } from "./get-webpage-enum.ts";
 
-export async function getMangaChapter(manga: Manga) {
-    const webPage = getWebpageEnum(manga.baseUrl);
-
-    if (webPage === undefined) {
-        throw new Error(`Enum for ${manga.url} has not been implemented yet!`);
-    } else {
-        const html = await fetch(manga.url);
-        const document = <HTMLDocument>new DOMParser().parseFromString(await (html.text()), 'text/html');
-
-        const chapterElement = getChapterElement(document, webPage);
-        const chapterName = chapterElement.innerText.trim();
-        if (chapterName === undefined) {
-            throw new Error(`Parser for ${webPage} might be broken!`);
-        }
-        return { document, chapterName, chapterElement, webPage };
-    }
+export async function getDOM(url: string): Promise<HTMLDocument> {
+  const html = await fetch(url);
+  return <HTMLDocument> new DOMParser().parseFromString(
+    await (html.text()),
+    "text/html",
+  );
 }
 
-export function getMangaEmbed(document: HTMLDocument, manga: Manga, webPage: Webpage, chapterElement: Element): Embed {
-    const embed: Embed = {
-        title: '',
-        url: manga.url
-    }
-
-    switch (webPage) {
-        case Webpage.mangakakalot:
-            embed.url = chapterElement.getElementsByTagName('a')[0].getAttribute('href')!;
-            embed.image = { url: document.getElementsByClassName('manga-info-pic')[0].getElementsByTagName('img')[0].getAttribute('src')! };
-            break;
-
-        case Webpage.manganato:
-        case Webpage.readmanganato:
-        case Webpage.manganelo: {
-            embed.url = chapterElement.getAttribute('href')!;
-            embed.image = { url: document.getElementsByClassName('info-image')[0].getElementsByTagName('img')[0].getAttribute('src')! };
-            break;
-        }
-
-        case Webpage.mangadex: {
-            const mangadexBaseUrl = new URL(webPage).origin;
-            const chapterPath = chapterElement.getElementsByTagName('a')[0].getAttribute('href')!;
-            embed.url = new URL(mangadexBaseUrl, chapterPath).toString();
-            embed.image = { url: new URL(mangadexBaseUrl, document.getElementsByClassName('rounded')[0].getAttribute('href')!).toString() };
-            break;
-        }
-
-        default:
-            throw new Error(`Case for ${webPage} has not been implemented yet!`);
-    }
-    embed.title = getMessage(manga, chapterElement.innerText.trim());
-    return embed;
+export function getChapterName(dom: HTMLDocument, url: string) {
+  return getChapterElement(dom, url).innerText.trim();
 }
 
-function getChapterElement(document: HTMLDocument, webPage: Webpage): Element {
-    let chapterElement: Element;
-    switch (webPage) {
-        case Webpage.mangakakalot:
-            chapterElement = document.getElementsByClassName('row')[1].getElementsByTagName('span')[0];
-            break;
+export function getMangaEmbed(document: HTMLDocument, manga: Manga): Embed {
+  const embed: Embed = {
+    title: "",
+    url: manga.url,
+  };
 
-        case Webpage.manganato:
-        case Webpage.readmanganato:
-        case Webpage.manganelo:
-            chapterElement = document.getElementsByClassName('chapter-name')[0];
-            break;
+  const chapterElement = getChapterElement(document, manga.url);
+  const baseUrl = new URL(manga.url).origin;
 
-        case Webpage.mangadex:
-            chapterElement = document.getElementsByClassName('text-truncate')[0];
-            break;
+  switch (baseUrl) {
+    case Webpage.mangakakalot:
+      embed.url = chapterElement.getElementsByTagName("a")[0].getAttribute(
+        "href",
+      )!;
+      embed.image = {
+        url: document.getElementsByClassName("manga-info-pic")[0]
+          .getElementsByTagName("img")[0].getAttribute("src")!,
+      };
+      break;
 
-        default:
-            console.error(`Case for ${webPage} has not been implemented yet!`);
-            break;
+    case Webpage.manganato:
+    case Webpage.readmanganato:
+    case Webpage.manganelo: {
+      embed.url = chapterElement.getAttribute("href")!;
+      embed.image = {
+        url: document.getElementsByClassName("info-image")[0]
+          .getElementsByTagName("img")[0].getAttribute("src")!,
+      };
+      break;
     }
-    return chapterElement!;
+
+    case Webpage.mangadex: {
+      const chapterPath = chapterElement.getElementsByTagName("a")[0]
+        .getAttribute("href")!;
+      embed.url = new URL(baseUrl, chapterPath).toString();
+      embed.image = {
+        url: new URL(
+          baseUrl,
+          document.getElementsByClassName("rounded")[0].getAttribute("href")!,
+        ).toString(),
+      };
+      break;
+    }
+
+    case Webpage.asurascans: {
+      embed.url = document.getElementsByClassName("epcurlast")![0]
+        .parentElement!.getAttribute("href")!;
+      embed.image = {
+        url: document.getElementsByClassName("attachment-")[0].getAttribute(
+          "src",
+        )!,
+      };
+      break;
+    }
+
+    default:
+      throw new Error(`Case for ${baseUrl} has not been implemented yet!`);
+  }
+
+  embed.title =
+    `${chapterElement.innerText.trim()} of '${manga.name}' just dropped!`;
+  return embed;
+}
+
+function getChapterElement(document: HTMLDocument, url: string | URL) {
+  let chapterElement;
+  const baseUrl = typeof url === "string" ? new URL(url).origin : url.origin;
+
+  switch (baseUrl) {
+    case Webpage.mangakakalot:
+      chapterElement =
+        document.getElementsByClassName("row")[1].getElementsByTagName(
+          "span",
+        )[0];
+      break;
+
+    case Webpage.manganato:
+    case Webpage.readmanganato:
+    case Webpage.manganelo: {
+      chapterElement = document.getElementsByClassName("chapter-name")[0];
+      break;
+    }
+
+    case Webpage.mangadex: {
+      chapterElement = document.getElementsByClassName("text-truncate")[0];
+      break;
+    }
+
+    case Webpage.asurascans: {
+      chapterElement = document.getElementsByClassName("epcurlast")[0];
+      break;
+    }
+
+    default:
+      throw new Error(`Case for ${baseUrl} has not been implemented yet!`);
+  }
+  return chapterElement;
 }

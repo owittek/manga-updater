@@ -12,6 +12,18 @@ export async function sendDiscordMessage(...embeds: Embed[]) {
     });
 }
 
+export async function sendSimpleDiscordMessage(text: string) {
+    return await fetch(webhookUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            username: config.discordSettings.username,
+            avatar_url: config.discordSettings.avatarUrl,
+            content: text
+        })
+    });
+}
+
 function getBody(embeds: Embed[]): Body {
     const embedColorOrRandom = config.discordSettings.embedColor;
     if (embedColorOrRandom !== undefined) {
